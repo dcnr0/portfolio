@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>zepti_w</title>
+    <!-- favicon link -->
+    <link rel="icon" href="iksi.png" type="image/png">
+    <!-- import poppins font from google fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
@@ -469,12 +472,16 @@
 </head>
 <body>
 
+    <!-- modern browsers block music autoplay until the user clicks somewhere on the screen -->
     <div id="interaction-overlay">click anywhere to open portfolio</div>
 
+    <!-- background canvas for animated snow particles -->
     <canvas id="snow-canvas"></canvas>
 
+    <!-- cursor trail node -->
     <div class="cursor-trail" id="trail"></div>
 
+    <!-- flat running clock locked outside adaptive scaling bounds -->
     <div class="local-time-widget" id="time-widget-box">
         local time: <span id="time-clock">00:00:00 am</span>
     </div>
@@ -482,6 +489,7 @@
     <div class="container">
         
         <header id="main-header">
+            <!-- profile pic directly inside header left of text block -->
             <img class="profile-pic" src="https://tr.rbxcdn.com/30DAY-AvatarHeadshot-98DBD98B3A5BD5E9C8A5CD48EC6D2753-Png/150/150/AvatarHeadshot/Webp/noFilter" alt="zepti_w pfp">
             <div class="header-text">
                 <div class="typewriter-wrapper">
@@ -497,8 +505,10 @@
         <div class="content" id="main-content">
             <main style="width: 100%;">
                 
+                <!-- Side-by-Side Information Block Section Grid -->
                 <div class="info-grid">
                     
+                    <!-- Tab 1: About Biography Card -->
                     <section class="bio-card tilt-card">
                         <p>hey, i'm <strong>zepti_w</strong>. i am a 13-year-old creator who loves coding, building cool things, and making audios. when i'm not coding, i'm usually hanging out on roblox, bypassing sum audios, or touching grass 😂 </p>
                         <div class="interests-grid">
@@ -508,6 +518,7 @@
                         </div>
                     </section>
 
+                    <!-- Tab 2: Languages Tab -->
                     <section class="languages-card tilt-card">
                         <h3>languages</h3>
                         <div class="lang-item">
@@ -526,6 +537,7 @@
                         </div>
                     </section>
 
+                    <!-- Tab 3: Birthday Tab -->
                     <section class="birthday-card tilt-card">
                         <h3>birthday</h3>
                         <div class="birthday-display">
@@ -537,6 +549,7 @@
                 </div>
 
                 <section>
+                    <!-- grid of interactive 3d buttons with social channels -->
                     <div class="links-container">
                         <a href="https://guns.lol/zepti_W" target="_blank" class="social-btn"><span>guns.lol</span></a>
                         <a href="https://www.roblox.com/users/5549508446/profile" target="_blank" class="social-btn"><span>roblox</span></a>
