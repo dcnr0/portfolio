@@ -74,8 +74,8 @@
             z-index: 2; /* keeps ui elements above the snow */
             min-height: 100vh;
             
-            /* subtly scales the main view container with music beats */
-            transform: scale(calc(1 + (var(--audio-bounce) - 1) * 0.3));
+            /* scales the main view container based on the adjusted audio multiplier */
+            transform: scale(calc(1 + (var(--audio-bounce) - 1) * 0.4));
             will-change: transform;
         }
 
@@ -216,7 +216,7 @@
         /* social grid & button setup */
         .links-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 16px;
             width: 100%;
         }
@@ -378,6 +378,7 @@
                     <div class="links-container">
                         <a href="https://guns.lol/zepti_W" target="_blank" class="social-btn"><span>guns.lol</span></a>
                         <a href="https://www.roblox.com/users/5549508446/profile" target="_blank" class="social-btn"><span>roblox</span></a>
+                        <a href="https://soundcloud.com/zepti_w" target="_blank" class="social-btn"><span>soundcloud</span></a>
                         <a href="https://www.youtube.com/@zzzepti" target="_blank" class="social-btn"><span>youtube</span></a>
                         <a href="https://discord.com/users/1317324380291862659" target="_blank" class="social-btn"><span>discord</span></a>
                     </div>
@@ -449,8 +450,8 @@
             }
             let average = total / dataArray.length; // value between 0 - 255
 
-            // convert into dynamic scaling factor (adds a subtle max 1.05 boost on loud beats)
-            let bounceFactor = 1 + (average / 255) * 0.05;
+            // convert into dynamic scaling factor (adds a max 0.20 boost on loud beats)
+            let bounceFactor = 1 + (average / 255) * 0.20;
 
             // push calculated scale factor back down into page layout systems
             document.documentElement.style.setProperty('--audio-bounce', bounceFactor);
