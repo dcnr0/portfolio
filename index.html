@@ -1024,10 +1024,9 @@
         }
 
 
-        // --- custom wavy line waveform audio visualizer logic ---
+        // --- custom white glowy oscilloscope audio visualizer logic ---
         const waveCanvas = document.getElementById('player-wave-canvas');
         const waveCtx = waveCanvas.getContext('2d');
-        let wavePhase = 0;
 
         function renderWaveformLine() {
             requestAnimationFrame(renderWaveformLine);
@@ -1036,14 +1035,68 @@
             const h = waveCanvas.height = waveCanvas.offsetHeight;
             waveCtx.clearRect(0, 0, w, h);
 
-            // compute raw energy levels from spectrum frequency values arrays
-            let rawEnergy = 0;
-            if (analyser && !audio.paused) {
+            // get fresh frequency data array slice
+            if (analyser) {
                 analyser.getByteFrequencyData(dataArray);
-                let subTotal = 0;
-                for(let i=0; i<dataArray.length; i++) { subTotal += dataArray[i]; }
-                rawEnergy = subTotal / dataArray.length;
             }
+
+            const sliceWidth = w / dataArray.length;
+            
+            // set up core glow properties for high-voltage neon styling
+            waveCtx.lineCap = 'round';
+            waveCtx.lineJoin = 'round';
+
+            // pass 1: deep wide ambient glow backplate layer
+            waveCtx.beginPath();
+            waveCtx.lineWidth = 4;
+            waveCtx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            waveCtx.shadowBlur = 14;
+            waveCtx.shadowColor = 'rgba(255, 255, 255, 0.9)';
+            drawOscilloscopePath(sliceWidth, h);
+            waveCtx.stroke();
+
+            // pass 2: bright hot core vector line layer
+            waveCtx.beginPath();
+            waveCtx.lineWidth = 1.5;
+            waveCtx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
+            waveCtx.shadowBlur = 4;
+            waveCtx.shadowColor = 'rgba(255, 255, 255, 0.6)';
+            drawOscilloscopePath(sliceWidth, h);
+            waveCtx.stroke();
+            
+            waveCtx.shadowBlur = 0; // reset context canvas shadow states safely
+        }
+
+        // helper logic charting raw reactive coordinates across data segments
+        function drawOscilloscopePath(sliceWidth, canvasHeight) {
+            let x = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+                // compute responsive displacement height factor
+                let amplitude = dataArray[i] / 255;
+                if (audio.paused) amplitude = 0; // flattens out cleanly to absolute baseline when paused
+
+                // calculate audio offset jumping symmetrically around the vertical median point
+                let multiplier = (i % 2 === 0) ? 1 : -1;
+                let activeOffset = (amplitude * (canvasHeight * 0.45)) * multiplier;
+                
+                // add subtle energetic baseline static noise when music is actively streaming
+                if (!audio.paused && amplitude > 0) {
+                    activeOffset += (Math.random() - 0.5) * 2;
+                }
+
+                let yPosition = (canvasHeight / 2) + activeOffset;
+
+                if (i === 0) {
+                    waveCtx.moveTo(x, yPosition);
+                } else {
+                    waveCtx.lineTo(x, yPosition);
+                }
+
+                x += sliceWidth;
+            }
+            // tie off line end vectors cleanly straight to edge limits
+            waveCtx.lineTo(waveCanvas.width, canvasHeight / 2);
+        }
 
             // scale factor calculation profiles
             let intensityFactor = (rawEnergy / 255);
