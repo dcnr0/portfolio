@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>zepti_w // portfolio </title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0d0d0d;
+            --card-bg: #1a1a1a;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --border-color: #2a2a2a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif; /* applied poppins globally */
+            text-transform: lowercase; /* forces everything to lowercase */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center; /* perfectly centers content vertically in viewport */
+            position: relative;
+        }
+
+        /* background canvas for subtle snow */
+        #snow-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* custom cursor trail element */
+        .cursor-trail {
+            width: 8px;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.5); /* 50% opacity */
+            border-radius: 50%;
+            position: fixed;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 9999;
+            transition: width 0.1s, height 0.1s;
+        }
+
+        /* main container layout */
+        .container {
+            max-width: 800px;
+            width: 100%;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            perspective: 1000px; /* enables 3d perspective space */
+            z-index: 2; /* keeps ui elements above the snow */
+            min-height: 100vh;
+        }
+
+        /* header layout adjusting for typewriter effect */
+        header {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px; /* space between pfp and text */
+            animation: moveUp 1.2s cubic-bezier(0.85, 0, 0.15, 1) forwards;
+            animation-delay: 2.8s; /* pushed back to give typewriter time to shine */
+            z-index: 10;
+            width: 100%;
+        }
+
+        /* white circle outline profile picture setup */
+        .profile-pic {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            border: 2px solid #ffffff;
+            object-fit: cover;
+            opacity: 0;
+            filter: blur(10px);
+            animation: fadeInBlur 1s ease forwards;
+            animation-delay: 0.3s;
+        }
+
+        .header-text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* aligns text elements left next to the pfp */
+        }
+
+        /* typewriter container for h1 */
+        .typewriter-wrapper {
+            display: inline-block;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            line-height: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 0; /* starts hidden for typewriter */
+            border-right: 3px solid #ffffff; /* typing cursor indicator */
+            animation: 
+                typing 1.2s steps(7, end) forwards,
+                blinkCursor 0.75s step-end infinite;
+            animation-delay: 0.8s; /* starts smoothly right after entry initialization */
+        }
+
+        .tagline {
+            color: var(--text-muted);
+            font-size: 1rem;
+            letter-spacing: 2px;
+            margin-top: 8px;
+            opacity: 0;
+            filter: blur(5px);
+            animation: fadeInBlur 1s ease forwards;
+            animation-delay: 2.2s; /* reveals right after typing complete */
+        }
+
+        /* content layout positioned safely below header */
+        .content {
+            width: 100%;
+            opacity: 0;
+            filter: blur(20px);
+            animation: contentBlurIn 1.5s ease forwards, fixPosition 1.2s cubic-bezier(0.85, 0, 0.15, 1) forwards;
+            animation-delay: 3.5s, 2.8s;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* centers the inside content card items */
+        }
+
+        /* 3d tiltable card parent element */
+        .tilt-card {
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
+            will-change: transform;
+        }
+
+        /* bio section design */
+        .bio-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            text-align: center; /* centered text inside the bio card */
+            width: 100%;
+        }
+
+        /* pushes nested text forward inside 3d space */
+        .bio-card p, .interests-grid {
+            transform: translateZ(30px); 
+        }
+
+        .bio-card p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--text-main);
+            margin-bottom: 25px;
+        }
+
+        /* interests tags layout */
+        .interests-grid {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center; /* centers interest tags horizontally */
+        }
+
+        .interest-tag {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        /* social grid & button setup */
+        .links-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            width: 100%;
+        }
+
+        .social-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 500;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            transform-style: preserve-3d;
+            transition: background 0.2s ease, border-color 0.2s ease, transform 0.1s ease-out;
+            will-change: transform;
+        }
+
+        .social-btn span {
+            transform: translateZ(20px);
+            display: inline-block;
+        }
+
+        .social-btn:hover {
+            background: #262626;
+            border-color: #444444;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* keyframe animations */
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes blinkCursor {
+            from, to { border-color: transparent; }
+            50% { border-color: #ffffff; }
+        }
+
+        @keyframes fadeInBlur {
+            0% {
+                opacity: 0;
+                filter: blur(10px);
+            }
+            100% {
+                opacity: 1;
+                filter: blur(0px);
+            }
+        }
+
+        @keyframes moveUp {
+            0% {
+                top: 50%;
+                transform: translateY(-50%);
+            }
+            100% {
+                top: 10%; /* adjusted to push up cleanly above centrally balanced layout */
+                transform: translateY(0%);
+            }
+        }
+
+        @keyframes fixPosition {
+            0% {
+                margin-top: 50vh;
+            }
+            100% {
+                margin-top: 220px; /* clean structural space under the header */
+            }
+        }
+
+        @keyframes contentBlurIn {
+            0% {
+                opacity: 0;
+                filter: blur(20px);
+            }
+            100% {
+                opacity: 1;
+                filter: blur(0px);
+            }
+        }
+
+        /* tablet & mobile alignment adjustments */
+        @media (max-width: 600px) {
+            header {
+                padding: 0 20px;
+                gap: 16px;
+            }
+            h1 {
+                font-size: 2.5rem;
+            }
+            .profile-pic {
+                width: 70px;
+                height: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="snow-canvas"></canvas>
+
+    <div class="cursor-trail" id="trail"></div>
+
+    <div class="container">
+        
+        <header>
+            <img class="profile-pic" src="https://tr.rbxcdn.com/30DAY-AvatarHeadshot-98DBD98B3A5BD5E9C8A5CD48EC6D2753-Png/150/150/AvatarHeadshot/Webp/noFilter" alt="zepti_w pfp">
+            <div class="header-text">
+                <div class="typewriter-wrapper">
+                    <h1>zepti_w</h1>
+                </div>
+                <div class="tagline">wassup</div>
+            </div>
+        </header>
+
+        <div class="content">
+            <main style="width: 100%;">
+                <section class="bio-card tilt-card">
+                    <p>hey, i'm <strong>zepti_w</strong>. i am a 13-year-old creator who loves coding, building cool things, and making audios. when i'm not coding, i'm usually hanging out on roblox, bypassing sum audios, or touching grass 😂 </p>
+                    
+                    <div class="interests-grid">
+                        <div class="interest-tag">coding</div>
+                        <div class="interest-tag">roblox</div>
+                        <div class="interest-tag">gaming</div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="links-container">
+                        <a href="https://guns.lol/zepti_W" target="_blank" class="social-btn"><span>guns.lol</span></a>
+                        <a href="https://www.roblox.com/users/5549508446/profile" target="_blank" class="social-btn"><span>roblox</span></a>
+                        <a href="https://www.youtube.com/@zzzepti" target="_blank" class="social-btn"><span>youtube</span></a>
+                        <a href="https://discord.com/users/1317324380291862659" target="_blank" class="social-btn"><span>discord</span></a>
+                    </div>
+                </section>
+            </main>
+
+            <footer>
+                &copy; 2026 zepti_w.
+            </footer>
+        </div>
+
+    </div>
+
+    <script>
+        // --- subtle background snow animation ---
+        const canvas = document.getElementById('snow-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        const maxFlakes = 65; 
+        const flakes = [];
+
+        for (let i = 0; i < maxFlakes; i++) {
+            flakes.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                r: Math.random() * 1.5 + 0.5,
+                d: Math.random() * maxFlakes,
+                speedY: Math.random() * 0.4 + 0.2,
+                speedX: Math.random() * 0.2 - 0.1
+            });
+        }
+
+        function drawSnow() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+            ctx.beginPath();
+            
+            for (let i = 0; i < maxFlakes; i++) {
+                const f = flakes[i];
+                ctx.moveTo(f.x, f.y);
+                ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2, true);
+
+                f.y += f.speedY;
+                f.x += f.speedX;
+
+                if (f.y > height) {
+                    flakes[i] = { x: Math.random() * width, y: -10, r: f.r, d: f.d, speedY: f.speedY, speedX: f.speedX };
+                } else if (f.x > width) {
+                    f.x = 0;
+                } else if (f.x < 0) {
+                    f.x = width;
+                }
+            }
+            ctx.fill();
+            requestAnimationFrame(drawSnow);
+        }
+        drawSnow();
+
+
+        // --- 50% opacity cursor trail logic ---
+        const trail = document.getElementById('trail');
+        let mouseX = 0, mouseY = 0;
+        let trailX = 0, trailY = 0;
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function animateTrail() {
+            trailX += (mouseX - trailX) * 0.15;
+            trailY += (mouseY - trailY) * 0.15;
+            
+            trail.style.left = trailX + 'px';
+            trail.style.top = trailY + 'px';
+            
+            requestAnimationFrame(animateTrail);
+        }
+        animateTrail();
+
+        window.addEventListener('mousedown', () => {
+            trail.style.width = '14px';
+            trail.style.height = '14px';
+        });
+        window.addEventListener('mouseup', () => {
+            trail.style.width = '8px';
+            trail.style.height = '8px';
+        });
+
+
+        // --- 3d cursor tracking card rotation ---
+        const tiltElements = document.querySelectorAll('.tilt-card, .social-btn');
+
+        tiltElements.forEach(element => {
+            element.addEventListener('mousemove', (e) => {
+                const rect = element.getBoundingClientRect();
+                const x = e.clientX - rect.left - (rect.width / 2);
+                const y = e.clientY - rect.top - (rect.height / 2);
+                
+                const rotateX = -(y / (rect.height / 2)) * 12; 
+                const rotateY = (x / (rect.width / 2)) * 12;
+
+                element.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+
+            element.addEventListener('mouseleave', () => {
+                element.style.transform = 'rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+            });
+        });
+
+        // hide typing cursor border after text is fully handwritten
+        setTimeout(() => {
+            const heading = document.querySelector('h1');
+            if(heading) heading.style.borderRight = 'none';
+        }, 2200);
+    </script>
+
+</body>
+</html>
