@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zepti_w</title>
+    <title>ｚｅｐｔｉ_Ｗ</title>
     <link rel="icon" href="iksi.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -100,7 +100,7 @@
 
         header.animate-init {
             animation: moveUp 1.2s cubic-bezier(0.85, 0, 0.15, 1) forwards;
-            animation-delay: 2.2s; /* clean transition space after typewriter typing finishes */
+            animation-delay: 2.5s; /* scaled cleanly to align perfectly after handwritten typing loops finish */
         }
 
         /* white circle outline profile picture setup with ambient glow */
@@ -149,16 +149,14 @@
             line-height: 1;
             white-space: nowrap;
             overflow: hidden;
-            width: 0; /* starts hidden for typewriter */
+            display: inline-block;
             border-right: 3px solid #ffffff; /* typing cursor indicator */
             text-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+            min-height: 3.5rem;
         }
 
         header.animate-init h1 {
-            animation: 
-                typing 1.2s steps(7, end) forwards,
-                blinkCursor 0.75s step-end infinite;
-            animation-delay: 0.4s; /* delays execution until full page fade sequence launches */
+            animation: blinkCursor 0.75s step-end infinite;
         }
 
         .tagline-container {
@@ -172,7 +170,7 @@
 
         header.animate-init .tagline-container {
             animation: fadeInBlur 1s ease forwards;
-            animation-delay: 1.6s;
+            animation-delay: 2.0s;
         }
 
         .tagline {
@@ -195,7 +193,7 @@
 
         .content.animate-init {
             animation: contentBlurIn 1.5s ease forwards, fixPosition 1.2s cubic-bezier(0.85, 0, 0.15, 1) forwards;
-            animation-delay: 2.9s, 2.2s;
+            animation-delay: 3.2s, 2.5s;
             display: flex;
             flex-direction: column;
             align-items: center; /* centers the inside content card items */
@@ -402,11 +400,6 @@
         }
 
         /* keyframe animations */
-        @keyframes typing {
-            from { width: 0; }
-            to { width: 100%; }
-        }
-
         @keyframes blinkCursor {
             from, to { border-color: transparent; }
             50% { border-color: #ffffff; }
@@ -466,6 +459,7 @@
             }
             h1 {
                 font-size: 2.5rem;
+                min-height: 2.5rem;
             }
             .profile-pic {
                 width: 70px;
@@ -498,10 +492,10 @@
     <div class="container">
         
         <header id="main-header">
-            <img class="profile-pic" src="iksi.png" alt="zepti_w pfp">
+            <img class="profile-pic" src="https://i.pinimg.com/originals/65/e3/43/65e34380e1792d056eb704847c6806dd.gif" alt="zepti_w pfp">
             <div class="header-text">
                 <div class="typewriter-wrapper">
-                    <h1>zepti_w</h1>
+                    <h1 id="typewriter-title"></h1>
                 </div>
                 <div class="tagline-container">
                     <div class="tagline" id="quote-box">wassup</div>
@@ -666,7 +660,31 @@
 
             // launch animation rendering loops
             visualizerLoop();
+            
+            // launch custom character-by-character typewriter execution
+            setTimeout(runTypewriter, 400);
         });
+
+        // --- precision type writer text animator loop ---
+        function runTypewriter() {
+            const targetString = "ｚｅｐｔｉ_Ｗ";
+            const targetElement = document.getElementById('typewriter-title');
+            let index = 0;
+            
+            function nextLetter() {
+                if (index < targetString.length) {
+                    targetElement.textContent += targetString.charAt(index);
+                    index++;
+                    setTimeout(nextLetter, 250); // triggers a new character exactly every 0.25 seconds
+                } else {
+                    // remove visual text cursor bar right after typing sequence reaches full completion
+                    setTimeout(() => {
+                        targetElement.style.borderRight = 'none';
+                    }, 500);
+                }
+            }
+            nextLetter();
+        }
 
         function visualizerLoop() {
             if (!analyser) return;
@@ -846,12 +864,6 @@
                 element.style.transform = 'rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
             });
         });
-
-        // hide typing cursor border after text is fully handwritten
-        setTimeout(() => {
-            const heading = document.querySelector('h1');
-            if(heading) heading.style.borderRight = 'none';
-        }, 2200);
     </script>
 
 </body>
