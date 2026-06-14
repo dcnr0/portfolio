@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zepti_w // portfolio </title>
+    <title>zepti_w</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
@@ -14,6 +14,7 @@
             --text-main: #ffffff;
             --text-muted: #888888;
             --border-color: #2a2a2a;
+            --audio-bounce: 1; /* dynamic scale variable updated by js */
         }
 
         * {
@@ -72,6 +73,10 @@
             perspective: 1000px; /* enables 3d perspective space */
             z-index: 2; /* keeps ui elements above the snow */
             min-height: 100vh;
+            
+            /* subtly scales the main view container with music beats */
+            transform: scale(calc(1 + (var(--audio-bounce) - 1) * 0.3));
+            will-change: transform;
         }
 
         /* header layout adjusting for typewriter effect */
@@ -100,12 +105,21 @@
             filter: blur(10px);
             animation: fadeInBlur 1s ease forwards;
             animation-delay: 0.3s;
+            
+            /* scales up layout to audio volume directly */
+            transform: scale(var(--audio-bounce));
+            will-change: transform;
         }
 
         .header-text {
             display: flex;
             flex-direction: column;
             align-items: flex-start; /* aligns text elements left next to the pfp */
+            
+            /* scales up text container to audio volume directly */
+            transform: scale(var(--audio-bounce));
+            will-change: transform;
+            transform-origin: left center;
         }
 
         /* typewriter container for h1 */
@@ -233,6 +247,22 @@
             border-color: #444444;
         }
 
+        /* overlay text to request user interaction due to modern web audio policies */
+        #interaction-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(13, 13, 13, 0.95);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            transition: opacity 0.5s ease;
+        }
+
         footer {
             text-align: center;
             margin-top: 60px;
@@ -306,10 +336,15 @@
                 width: 70px;
                 height: 70px;
             }
+            .header-text {
+                transform-origin: center center;
+            }
         }
     </style>
 </head>
 <body>
+
+    <div id="interaction-overlay">click anywhere to open portfolio</div>
 
     <canvas id="snow-canvas"></canvas>
 
@@ -357,6 +392,71 @@
     </div>
 
     <script>
+        // --- web audio api processing engine ---
+        let audioContext;
+        let analyser;
+        let dataArray;
+        const audio = new Audio('bouncin 4.mp3');
+        audio.loop = true;
+
+        // handles clicking to initialize the sound engine safely
+        document.getElementById('interaction-overlay').addEventListener('click', function() {
+            this.style.opacity = '0';
+            setTimeout(() => this.remove(), 500);
+
+            // set up the web audio graph connection nodes
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 64; // small buffer size for fast volume tracking
+
+            const source = audioContext.createMediaElementSource(audio);
+            source.connect(analyser);
+            analyser.connect(audioContext.destination);
+
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+            // trigger playback with code-controlled 3 second volume fade-in
+            audio.volume = 0;
+            audio.play();
+
+            let startTime = performance.now();
+            function fadeInVolume(now) {
+                let elapsed = (now - startTime) / 1000;
+                if (elapsed < 3) {
+                    // cross-multiply to cleanly map full max 70% linear scale over 3 sec
+                    audio.volume = (elapsed / 3) * 0.7;
+                    requestAnimationFrame(fadeInVolume);
+                } else {
+                    audio.volume = 0.7; // target cap max at exactly 70% volume
+                }
+            }
+            requestAnimationFrame(fadeInVolume);
+            
+            // launch loop to feed audio stream values directly into layout transformations
+            visualizerLoop();
+        });
+
+        function visualizerLoop() {
+            if (!analyser) return;
+            requestAnimationFrame(visualizerLoop);
+
+            analyser.getByteFrequencyData(dataArray);
+
+            // parse amplitude out of frequency averages
+            let total = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+                total += dataArray[i];
+            }
+            let average = total / dataArray.length; // value between 0 - 255
+
+            // convert into dynamic scaling factor (adds a subtle max 1.05 boost on loud beats)
+            let bounceFactor = 1 + (average / 255) * 0.05;
+
+            // push calculated scale factor back down into page layout systems
+            document.documentElement.style.setProperty('--audio-bounce', bounceFactor);
+        }
+
+
         // --- subtle background snow animation ---
         const canvas = document.getElementById('snow-canvas');
         const ctx = canvas.getContext('2d');
