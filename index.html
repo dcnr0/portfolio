@@ -36,7 +36,7 @@
             position: relative;
         }
 
-        /* background canvas for subtle snow */
+        /* background canvas for subtle snow - hidden until click activation */
         #snow-canvas {
             position: fixed;
             top: 0;
@@ -45,6 +45,8 @@
             height: 100%;
             pointer-events: none;
             z-index: 1;
+            opacity: 0;
+            transition: opacity 1.5s ease;
         }
 
         /* custom cursor trail element */
@@ -60,9 +62,9 @@
             transition: width 0.1s, height 0.1s;
         }
 
-        /* main container layout */
+        /* main container layout - scales dynamically with a smoothed audio node */
         .container {
-            max-width: 800px;
+            max-width: 900px;
             width: 100%;
             padding: 40px 20px;
             display: flex;
@@ -74,12 +76,11 @@
             z-index: 2; /* keeps ui elements above the snow */
             min-height: 100vh;
             
-            /* scales the main view container based on the adjusted audio multiplier */
             transform: scale(calc(1 + (var(--audio-bounce) - 1) * 0.4));
             will-change: transform;
         }
 
-        /* header layout adjusting for typewriter effect */
+        /* header layout adjusting for typewriter effect - animation class added via js post click */
         header {
             position: absolute;
             top: 50%;
@@ -88,10 +89,14 @@
             align-items: center;
             justify-content: center;
             gap: 24px; /* space between pfp and text */
-            animation: moveUp 1.2s cubic-bezier(0.85, 0, 0.15, 1) forwards;
-            animation-delay: 2.8s; /* pushed back to give typewriter time to shine */
             z-index: 10;
             width: 100%;
+            opacity: 0;
+        }
+
+        header.animate-init {
+            animation: moveUp 1.2s cubic-bezier(0.85, 0, 0.15, 1) forwards;
+            animation-delay: 2.2s; /* clean transition space after typewriter typing finishes */
         }
 
         /* white circle outline profile picture setup */
@@ -103,12 +108,15 @@
             object-fit: cover;
             opacity: 0;
             filter: blur(10px);
-            animation: fadeInBlur 1s ease forwards;
-            animation-delay: 0.3s;
             
             /* scales up layout to audio volume directly */
             transform: scale(var(--audio-bounce));
             will-change: transform;
+        }
+
+        header.animate-init .profile-pic {
+            animation: fadeInBlur 1s ease forwards;
+            animation-delay: 0.1s;
         }
 
         .header-text {
@@ -137,33 +145,63 @@
             overflow: hidden;
             width: 0; /* starts hidden for typewriter */
             border-right: 3px solid #ffffff; /* typing cursor indicator */
+        }
+
+        header.animate-init h1 {
             animation: 
                 typing 1.2s steps(7, end) forwards,
                 blinkCursor 0.75s step-end infinite;
-            animation-delay: 0.8s; /* starts smoothly right after entry initialization */
+            animation-delay: 0.4s; /* delays execution until full page fade sequence launches */
+        }
+
+        .tagline-container {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 8px;
+            opacity: 0;
+            filter: blur(5px);
+        }
+
+        header.animate-init .tagline-container {
+            animation: fadeInBlur 1s ease forwards;
+            animation-delay: 1.6s;
         }
 
         .tagline {
             color: var(--text-muted);
             font-size: 1rem;
             letter-spacing: 2px;
-            margin-top: 8px;
-            opacity: 0;
-            filter: blur(5px);
-            animation: fadeInBlur 1s ease forwards;
-            animation-delay: 2.2s; /* reveals right after typing complete */
+            transition: opacity 0.3s ease;
         }
 
-        /* content layout positioned safely below header */
+        .origin-flag {
+            font-size: 1.4rem;
+            line-height: 1;
+        }
+
+        /* content layout positioned safely below header - animation class added via js post click */
         .content {
             width: 100%;
             opacity: 0;
             filter: blur(20px);
+        }
+
+        .content.animate-init {
             animation: contentBlurIn 1.5s ease forwards, fixPosition 1.2s cubic-bezier(0.85, 0, 0.15, 1) forwards;
-            animation-delay: 3.5s, 2.8s;
+            animation-delay: 2.9s, 2.2s;
             display: flex;
             flex-direction: column;
             align-items: center; /* centers the inside content card items */
+        }
+
+        /* Responsive Multi-column Grid Layout for Profile Info Tabs */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 2fr 1.2fr 1fr;
+            gap: 16px;
+            width: 100%;
+            margin-bottom: 24px;
         }
 
         /* 3d tiltable card parent element */
@@ -171,49 +209,100 @@
             transform-style: preserve-3d;
             transition: transform 0.1s ease-out;
             will-change: transform;
-        }
-
-        /* bio section design */
-        .bio-card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 40px;
-            text-align: center; /* centered text inside the bio card */
-            width: 100%;
-        }
-
-        /* pushes nested text forward inside 3d space */
-        .bio-card p, .interests-grid {
-            transform: translateZ(30px); 
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .bio-card p {
-            font-size: 1.1rem;
-            line-height: 1.6;
+            font-size: 1.05rem;
+            line-height: 1.5;
             color: var(--text-main);
-            margin-bottom: 25px;
+            margin-bottom: 16px;
+            text-align: left;
         }
 
         /* interests tags layout */
         .interests-grid {
             display: flex;
-            gap: 12px;
+            gap: 8px;
             flex-wrap: wrap;
-            justify-content: center; /* centers interest tags horizontally */
         }
 
         .interest-tag {
             background: transparent;
             border: 1px solid var(--border-color);
-            padding: 8px 16px;
+            padding: 4px 12px;
             border-radius: 6px;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
         }
 
-        /* social grid & button setup - updated to support clean multi-row stacking */
+        /* Languages Tab Styling */
+        .languages-card h3, .birthday-card h3 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .lang-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .lang-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .flag-img {
+            font-size: 1.8rem;
+            line-height: 1;
+        }
+
+        .lang-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .lang-name {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .lang-status {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Birthday Tab Styling */
+        .birthday-display {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .birth-date {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .birth-year {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* social grid & button setup */
         .links-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -247,11 +336,37 @@
             border-color: #444444;
         }
 
+        /* Flat Local Time UI Element - Fades in softly with scripts */
+        .local-time-widget {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 1000;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            background: rgba(26, 26, 26, 0.6);
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(8px);
+            pointer-events: none; /* purely informative graphic */
+            text-transform: uppercase;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+
+        #time-clock {
+            color: var(--text-main);
+            font-weight: 500;
+            margin-left: 4px;
+        }
+
         /* overlay text to request user interaction due to modern web audio policies */
         #interaction-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(13, 13, 13, 0.95);
+            background: rgba(13, 13, 13, 1); /* completely solid dark background before entry click */
             z-index: 10000;
             display: flex;
             justify-content: center;
@@ -260,7 +375,7 @@
             font-size: 1.2rem;
             letter-spacing: 1px;
             color: var(--text-muted);
-            transition: opacity 0.5s ease;
+            transition: opacity 0.6s ease;
         }
 
         footer {
@@ -308,7 +423,7 @@
                 margin-top: 50vh;
             }
             100% {
-                margin-top: 220px; /* clean structural space under the header */
+                margin-top: 240px; /* clean structural space under the header */
             }
         }
 
@@ -324,7 +439,11 @@
         }
 
         /* tablet & mobile alignment adjustments */
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
             header {
                 padding: 0 20px;
                 gap: 16px;
@@ -339,6 +458,12 @@
             .header-text {
                 transform-origin: center center;
             }
+            .local-time-widget {
+                bottom: 12px;
+                left: 12px;
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
         }
     </style>
 </head>
@@ -350,29 +475,66 @@
 
     <div class="cursor-trail" id="trail"></div>
 
+    <div class="local-time-widget" id="time-widget-box">
+        local time: <span id="time-clock">00:00:00 am</span>
+    </div>
+
     <div class="container">
         
-        <header>
+        <header id="main-header">
             <img class="profile-pic" src="https://tr.rbxcdn.com/30DAY-AvatarHeadshot-98DBD98B3A5BD5E9C8A5CD48EC6D2753-Png/150/150/AvatarHeadshot/Webp/noFilter" alt="zepti_w pfp">
             <div class="header-text">
                 <div class="typewriter-wrapper">
                     <h1>zepti_w</h1>
                 </div>
-                <div class="tagline">wassup</div>
+                <div class="tagline-container">
+                    <div class="tagline" id="quote-box">wassup</div>
+                    <div class="origin-flag">🇩🇴</div>
+                </div>
             </div>
         </header>
 
-        <div class="content">
+        <div class="content" id="main-content">
             <main style="width: 100%;">
-                <section class="bio-card tilt-card">
-                    <p>hey, i'm <strong>zepti_w</strong>. i am a 13-year-old creator who loves coding, building cool things, and making audios. when i'm not coding, i'm usually hanging out on roblox, bypassing sum audios, or touching grass 😂 </p>
+                
+                <div class="info-grid">
                     
-                    <div class="interests-grid">
-                        <div class="interest-tag">coding</div>
-                        <div class="interest-tag">roblox</div>
-                        <div class="interest-tag">gaming</div>
-                    </div>
-                </section>
+                    <section class="bio-card tilt-card">
+                        <p>hey, i'm <strong>zepti_w</strong>. i am a 13-year-old creator who loves coding, building cool things, and making audios. when i'm not coding, i'm usually hanging out on roblox, bypassing sum audios, or touching grass 😂 </p>
+                        <div class="interests-grid">
+                            <div class="interest-tag">coding</div>
+                            <div class="interest-tag">roblox</div>
+                            <div class="interest-tag">gaming</div>
+                        </div>
+                    </section>
+
+                    <section class="languages-card tilt-card">
+                        <h3>languages</h3>
+                        <div class="lang-item">
+                            <div class="flag-img">🇺🇸</div>
+                            <div class="lang-info">
+                                <span class="lang-name">english</span>
+                                <span class="lang-status">fluent</span>
+                            </div>
+                        </div>
+                        <div class="lang-item">
+                            <div class="flag-img">🇪🇸</div>
+                            <div class="lang-info">
+                                <span class="lang-name">spanish</span>
+                                <span class="lang-status">native</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="birthday-card tilt-card">
+                        <h3>birthday</h3>
+                        <div class="birthday-display">
+                            <span class="birth-date">march 19</span>
+                            <span class="birth-year">2013</span>
+                        </div>
+                    </section>
+
+                </div>
 
                 <section>
                     <div class="links-container">
@@ -394,22 +556,70 @@
     </div>
 
     <script>
+        // --- quotes cycle tracking engine ---
+        const quotesList = [
+            "im newgen", "wassup", "dios es grande", "dapumpkingod NOT oldgen", 
+            "tung tung tung sahur", "leave", "erika", "i dont associate with nazis", 
+            "blue bands blue bands blue bands blue baaaannndss", "agramane", 
+            "gabetsu was here", "uwu", "owo", "insert quote here", 
+            "jeremiah 29:11", "crazy? i was crazy once"
+        ];
+        
+        const quoteBox = document.getElementById('quote-box');
+        
+        // generates a completely random quote from the set list instantly
+        function assignRandomQuote() {
+            const randomIndex = Math.floor(Math.random() * quotesList.length);
+            quoteBox.textContent = quotesList[randomIndex];
+        }
+
+        function rotateQuotes() {
+            quoteBox.style.opacity = '0';
+            setTimeout(() => {
+                assignRandomQuote();
+                quoteBox.style.opacity = '1';
+            }, 300);
+        }
+
+
+        // --- client-side live running local clock logic ---
+        const clockDisplay = document.getElementById('time-clock');
+        
+        function updateLocalClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            let seconds = now.getSeconds();
+            const ampm = hours >= 12 ? 'pm' : 'am';
+            
+            hours = hours % 12;
+            hours = hours ? hours : 12; // formatting 0 to 12
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            
+            clockDisplay.textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
+        }
+        setInterval(updateLocalClock, 1000);
+        updateLocalClock(); // run instantly on load
+
+
         // --- web audio api processing engine ---
         let audioContext;
         let analyser;
         let dataArray;
+        let currentBounce = 1; // used for smooth linear interpolation calculations
         const audio = new Audio('bouncin 4.mp3');
         audio.loop = true;
 
-        // handles clicking to initialize the sound engine safely
+        // handles clicking to initialize the sound engine safely and fires animation sequence
         document.getElementById('interaction-overlay').addEventListener('click', function() {
             this.style.opacity = '0';
-            setTimeout(() => this.remove(), 500);
+            setTimeout(() => this.remove(), 600);
 
-            // set up the web audio graph connection nodes
+            // set up raw sound frequencies tracking graphs
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
             analyser = audioContext.createAnalyser();
-            analyser.fftSize = 64; // small buffer size for fast volume tracking
+            analyser.fftSize = 64; 
 
             const source = audioContext.createMediaElementSource(audio);
             source.connect(analyser);
@@ -425,16 +635,29 @@
             function fadeInVolume(now) {
                 let elapsed = (now - startTime) / 1000;
                 if (elapsed < 3) {
-                    // cross-multiply to cleanly map full max 70% linear scale over 3 sec
                     audio.volume = (elapsed / 3) * 0.7;
                     requestAnimationFrame(fadeInVolume);
                 } else {
-                    audio.volume = 0.7; // target cap max at exactly 70% volume
+                    audio.volume = 0.7; 
                 }
             }
             requestAnimationFrame(fadeInVolume);
             
-            // launch loop to feed audio stream values directly into layout transformations
+            // --- sequential fade in entry trigger after overlay click ---
+            assignRandomQuote(); // inject a completely random quote right away on entry
+            setInterval(rotateQuotes, 4000); // begin the 4 second auto cycle rotation loop
+
+            document.getElementById('snow-canvas').style.opacity = '1';
+            document.getElementById('time-widget-box').style.opacity = '1';
+            
+            const headerElement = document.getElementById('main-header');
+            headerElement.style.opacity = '1';
+            headerElement.classList.add('animate-init');
+
+            const contentElement = document.getElementById('main-content');
+            contentElement.classList.add('animate-init');
+
+            // launch animation rendering loops
             visualizerLoop();
         });
 
@@ -449,17 +672,20 @@
             for (let i = 0; i < dataArray.length; i++) {
                 total += dataArray[i];
             }
-            let average = total / dataArray.length; // value between 0 - 255
+            let average = total / dataArray.length; 
 
-            // convert into dynamic scaling factor (adds a max 0.20 boost on loud beats)
-            let bounceFactor = 1 + (average / 255) * 0.20;
+            // convert amplitude parameter into a targeting maximum scale ceiling factor
+            let targetBounce = 1 + (average / 255) * 0.20;
 
-            // push calculated scale factor back down into page layout systems
-            document.documentElement.style.setProperty('--audio-bounce', bounceFactor);
+            // linear interpolation smoothing filter (0.08 produces heavy lingering release curves)
+            currentBounce += (targetBounce - currentBounce) * 0.08;
+
+            // push the calculated slow-release scale factor down into style document arrays
+            document.documentElement.style.setProperty('--audio-bounce', currentBounce);
         }
 
 
-        // --- subtle background snow animation ---
+        // --- background snow animation ---
         const canvas = document.getElementById('snow-canvas');
         const ctx = canvas.getContext('2d');
 
