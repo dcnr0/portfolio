@@ -232,7 +232,7 @@
         #player-wave-canvas {
             width: 110px;
             height: 38px;
-            opacity: 0.75;
+            opacity: 0.85;
         }
 
         /* track slider scrubber track setup overlay styles */
@@ -739,11 +739,11 @@
     <script>
         // --- quotes cycle tracking engine ---
         const quotesList = [
-            "im newgen", "wassup", "dios es grande", "dapumpkingod NOT oldgen", 
+            "im newgen", "wassup", "dios es grande", "hhhhhhhhhh", 
             "tung tung tung sahur", "leave", "erika", "i dont associate with nazis", 
             "blue bands blue bands blue bands blue baaaannndss", "agramane", 
             "gabetsu was here", "uwu", "owo", "insert quote here", 
-            "jeremiah 29:11", "crazy? i was crazy once"
+            "jeremiah 29:11", "crazy? i was crazy once", "fuck ooze"
         ];
         
         const quoteBox = document.getElementById('quote-box');
@@ -1096,37 +1096,6 @@
             }
             // tie off line end vectors cleanly straight to edge limits
             waveCtx.lineTo(waveCanvas.width, canvasHeight / 2);
-        }
-
-            // scale factor calculation profiles
-            let intensityFactor = (rawEnergy / 255);
-            if(audio.paused) intensityFactor = 0; // flattens string layouts completely when paused
-
-            waveCtx.beginPath();
-            waveCtx.lineWidth = 2;
-            waveCtx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
-            waveCtx.shadowBlur = 6;
-            waveCtx.shadowColor = 'rgba(255, 255, 255, 0.7)';
-
-            // draw single continuous sinewave curve line vectors across the widget space bounds
-            for (let x = 0; x < w; x++) {
-                // build math models combining standing frequency scales plus custom speed constants
-                let baselineCycles = (x / w) * Math.PI * 2.5;
-                let activeOffset = Math.sin(baselineCycles + wavePhase) * (h * 0.35 * intensityFactor);
-                let yPosition = (h / 2) + activeOffset;
-
-                if (x === 0) {
-                    waveCtx.moveTo(x, yPosition);
-                } else {
-                    waveCtx.lineTo(x, yPosition);
-                }
-            }
-
-            waveCtx.stroke();
-            waveCtx.shadowBlur = 0; // clear style pass definitions right after rendering updates
-
-            // advance step speeds continuously based on the strength of active song bass parameters
-            wavePhase += 0.04 + (intensityFactor * 0.08);
         }
 
 
