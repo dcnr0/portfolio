@@ -16,6 +16,10 @@
             --text-muted: #888888;
             --border-color: #2a2a2a;
             --audio-bounce: 1; /* dynamic scale variable updated by js */
+            
+            /* custom glow configuration variables */
+            --white-glow: 0 0 15px rgba(255, 255, 255, 0.4);
+            --ui-glow: 0 0 20px rgba(255, 255, 255, 0.05);
         }
 
         * {
@@ -50,17 +54,16 @@
             transition: opacity 1.5s ease;
         }
 
-        /* custom cursor trail element */
-        .cursor-trail {
-            width: 8px;
-            height: 8px;
-            background-color: rgba(255, 255, 255, 0.5); /* 50% opacity */
-            border-radius: 50%;
+        /* white glowing canvas cursor trail layer at 85% opacity */
+        #trail-canvas {
             position: fixed;
-            transform: translate(-50%, -50%);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             pointer-events: none;
             z-index: 9999;
-            transition: width 0.1s, height 0.1s;
+            opacity: 0.85; 
         }
 
         /* main container layout - scales dynamically with a smoothed audio node */
@@ -100,7 +103,7 @@
             animation-delay: 2.2s; /* clean transition space after typewriter typing finishes */
         }
 
-        /* white circle outline profile picture setup */
+        /* white circle outline profile picture setup with ambient glow */
         .profile-pic {
             width: 90px;
             height: 90px;
@@ -109,6 +112,7 @@
             object-fit: cover;
             opacity: 0;
             filter: blur(10px);
+            box-shadow: var(--white-glow);
             
             /* scales up layout to audio volume directly */
             transform: scale(var(--audio-bounce));
@@ -137,6 +141,7 @@
             position: relative;
         }
 
+        /* main brand header styled with light text glow */
         h1 {
             font-size: 3.5rem;
             font-weight: 700;
@@ -146,6 +151,7 @@
             overflow: hidden;
             width: 0; /* starts hidden for typewriter */
             border-right: 3px solid #ffffff; /* typing cursor indicator */
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
         }
 
         header.animate-init h1 {
@@ -204,10 +210,10 @@
             margin-bottom: 24px;
         }
 
-        /* 3d tiltable card parent element */
+        /* 3d tiltable card parent element featuring clean UI glow elements */
         .tilt-card {
             transform-style: preserve-3d;
-            transition: transform 0.1s ease-out;
+            transition: transform 0.1s ease-out, box-shadow 0.3s ease;
             will-change: transform;
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -216,6 +222,12 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            box-shadow: var(--ui-glow);
+        }
+
+        .tilt-card:hover {
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.08);
+            border-color: #3a3a3a;
         }
 
         .bio-card p {
@@ -322,8 +334,9 @@
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             transform-style: preserve-3d;
-            transition: background 0.2s ease, border-color 0.2s ease, transform 0.1s ease-out;
+            transition: background 0.2s ease, border-color 0.2s ease, transform 0.1s ease-out, box-shadow 0.2s ease;
             will-change: transform;
+            box-shadow: var(--ui-glow);
         }
 
         .social-btn span {
@@ -333,7 +346,8 @@
 
         .social-btn:hover {
             background: #262626;
-            border-color: #444444;
+            border-color: #555555;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
         }
 
         /* Flat Local Time UI Element - Fades in softly with scripts */
@@ -354,12 +368,14 @@
             text-transform: uppercase;
             opacity: 0;
             transition: opacity 1.5s ease;
+            box-shadow: var(--ui-glow);
         }
 
         #time-clock {
             color: var(--text-main);
             font-weight: 500;
             margin-left: 4px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
         }
 
         /* overlay text to request user interaction due to modern web audio policies */
@@ -473,7 +489,7 @@
 
     <canvas id="snow-canvas"></canvas>
 
-    <div class="cursor-trail" id="trail"></div>
+    <canvas id="trail-canvas"></canvas>
 
     <div class="local-time-widget" id="time-widget-box">
         local time: <span id="time-clock">00:00:00 am</span>
@@ -729,35 +745,86 @@
         drawSnow();
 
 
-        // --- 50% opacity cursor trail logic ---
-        const trail = document.getElementById('trail');
-        let mouseX = 0, mouseY = 0;
-        let trailX = 0, trailY = 0;
+        // --- canvas-engineered white glowy cursor trail ---
+        const trailCanvas = document.getElementById('trail-canvas');
+        const trailCtx = trailCanvas.getContext('2d');
+
+        let trailWidth = trailCanvas.width = window.innerWidth;
+        let trailHeight = trailCanvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            trailWidth = trailCanvas.width = window.innerWidth;
+            trailHeight = trailCanvas.height = window.innerHeight;
+        });
+
+        const points = [];
+        const maxPoints = 25; // changes trail length history tracking steps
+        let currentMouseX = 0;
+        let currentMouseY = 0;
+        let targetRadius = 4; // default line radius sizing
 
         window.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
+            currentMouseX = e.clientX;
+            currentMouseY = e.clientY;
+            points.push({ x: currentMouseX, y: currentMouseY });
+            if (points.length > maxPoints) {
+                points.shift();
+            }
         });
 
-        function animateTrail() {
-            trailX += (mouseX - trailX) * 0.15;
-            trailY += (mouseY - trailY) * 0.15;
+        window.addEventListener('mousedown', () => { targetRadius = 7; });
+        window.addEventListener('mouseup', () => { targetRadius = 4; });
+
+        let currentRadius = 4;
+
+        function animateTrailCanvas() {
+            trailCtx.clearRect(0, 0, trailWidth, trailHeight);
             
-            trail.style.left = trailX + 'px';
-            trail.style.top = trailY + 'px';
-            
-            requestAnimationFrame(animateTrail);
+            // smooth scale radius transitions during mouse clicks
+            currentRadius += (targetRadius - currentRadius) * 0.2;
+
+            if (points.length > 1) {
+                // draw structural outer filter glow pass
+                trailCtx.shadowBlur = 12;
+                trailCtx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+                
+                for (let i = 1; i < points.length; i++) {
+                    const gradPercentage = i / points.length;
+                    
+                    trailCtx.beginPath();
+                    trailCtx.moveTo(points[i - 1].x, points[i - 1].y);
+                    trailCtx.lineTo(points[i].x, points[i].y);
+                    
+                    // applies a fading opacity gradient down towards tail ends
+                    trailCtx.strokeStyle = `rgba(255, 255, 255, ${gradPercentage})`;
+                    trailCtx.lineWidth = currentRadius * gradPercentage;
+                    trailCtx.lineCap = 'round';
+                    trailCtx.lineJoin = 'round';
+                    trailCtx.stroke();
+                }
+                
+                // reset shadow states so canvas redraw iterations stay lightweight
+                trailCtx.shadowBlur = 0;
+            } else if (points.length === 1) {
+                // keep a tiny ambient standby dot when cursor rests perfectly still
+                trailCtx.beginPath();
+                trailCtx.arc(points[0].x, points[0].y, currentRadius, 0, Math.PI * 2);
+                trailCtx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                trailCtx.shadowBlur = 10;
+                trailCtx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+                trailCtx.fill();
+                trailCtx.shadowBlur = 0;
+            }
+
+            // continuous updates to capture slow trail drift decay loops even when still
+            if (points.length > 0 && (currentMouseX === points[points.length - 1].x && currentMouseY === points[points.length - 1].y)) {
+                points.push({ x: currentMouseX, y: currentMouseY });
+                points.shift();
+            }
+
+            requestAnimationFrame(animateTrailCanvas);
         }
-        animateTrail();
-
-        window.addEventListener('mousedown', () => {
-            trail.style.width = '14px';
-            trail.style.height = '14px';
-        });
-        window.addEventListener('mouseup', () => {
-            trail.style.width = '8px';
-            trail.style.height = '8px';
-        });
+        animateTrailCanvas();
 
 
         // --- 3d cursor tracking card rotation ---
