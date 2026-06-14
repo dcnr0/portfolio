@@ -186,6 +186,144 @@
             line-height: 1;
         }
 
+        /* custom unified track player module deck design layout */
+        .music-player-panel {
+            width: 100%;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            box-shadow: var(--ui-glow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .player-track-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            z-index: 2;
+        }
+
+        .track-details-core {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        #player-song-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
+        }
+
+        #player-song-artist {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* inline tiny landscape canvas rendering real-time fluid string movements */
+        #player-wave-canvas {
+            width: 110px;
+            height: 38px;
+            opacity: 0.75;
+        }
+
+        /* track slider scrubber track setup overlay styles */
+        .player-timeline-module {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 100%;
+            z-index: 2;
+        }
+
+        .scrubber-slider-element {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: #2a2a2a;
+            outline: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .scrubber-slider-element::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ffffff;
+            box-shadow: 0 0 8px #ffffff;
+            transition: transform 0.1s ease;
+        }
+
+        .scrubber-slider-element::-webkit-slider-thumb:hover {
+            transform: scale(1.3);
+        }
+
+        .timestamp-text-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        /* physical core buttons matrix wrapper setup array */
+        .player-buttons-deck {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 28px;
+            z-index: 2;
+            margin-top: 4px;
+        }
+
+        .control-action-node {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .control-action-node:hover {
+            color: var(--text-main);
+            transform: scale(1.08);
+        }
+
+        .control-action-node:active {
+            transform: scale(0.95);
+        }
+
+        .node-large-play {
+            color: var(--text-main);
+            background-color: #242424;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.02);
+        }
+
+        .node-large-play:hover {
+            background-color: #323232;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
         /* content layout positioned safely below header - animation class added via js post click */
         .content {
             width: 100%;
@@ -508,6 +646,37 @@
 
         <div class="content" id="main-content">
             <main style="width: 100%;">
+
+                <section class="music-player-panel">
+                    <div class="player-track-meta">
+                        <div class="track-details-core">
+                            <span id="player-song-title">loading...</span>
+                            <span id="player-song-artist">loading...</span>
+                        </div>
+                        <canvas id="player-wave-canvas"></canvas>
+                    </div>
+                    
+                    <div class="player-timeline-module">
+                        <input type="range" id="track-scrubber" class="scrubber-slider-element" min="0" value="0" step="0.1">
+                        <div class="timestamp-text-row">
+                            <span id="time-elapsed">0:00</span>
+                            <span id="time-total">0:00</span>
+                        </div>
+                    </div>
+
+                    <div class="player-buttons-deck">
+                        <button class="control-action-node" id="btn-prev-track" aria-label="previous track">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6L18 18V6z"/></svg>
+                        </button>
+                        <button class="control-action-node type-action-toggle node-large-play" id="btn-toggle-play" aria-label="play or pause">
+                            <svg id="play-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                            <svg id="pause-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                        </button>
+                        <button class="control-action-node" id="btn-next-track" aria-label="next track">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6zm9-12v12h2V6z"/></svg>
+                        </button>
+                    </div>
+                </section>
                 
                 <div class="info-grid">
                     
@@ -570,11 +739,11 @@
     <script>
         // --- quotes cycle tracking engine ---
         const quotesList = [
-            "im newgen", "wassup", "dios es grande", "why u bully meh", 
+            "im newgen", "wassup", "dios es grande", "dapumpkingod NOT oldgen", 
             "tung tung tung sahur", "leave", "erika", "i dont associate with nazis", 
             "blue bands blue bands blue bands blue baaaannndss", "agramane", 
             "gabetsu was here", "uwu", "owo", "insert quote here", 
-            "jeremiah 29:11", "crazy? i was crazy once", "fuck ooze and pombo gang"
+            "jeremiah 29:11", "crazy? i was crazy once"
         ];
         
         const quoteBox = document.getElementById('quote-box');
@@ -607,13 +776,151 @@
         updateLocalClock(); // run instantly on load
 
 
+        // --- structured internal track listing matrix ---
+        const trackPlaylist = [
+            { file: "song1.mp3", title: "bouncin", meta: "7timex" },
+            { file: "song2.mp3", title: "jus know", meta: "black mayo (prod. swaggggyb)" },
+            { file: "song3.mp3", title: "horrorblock 2k55", meta: "five finger posse (prod. oogie mane)" },
+            { file: "song4.mp3", title: "met her on the internet", meta: "kempachii (prod. bountyhunter)" },
+            { file: "song5.mp3", title: "me", meta: "lungskull" },
+            { file: "song6.mp3", title: "on me", meta: "supafly mante (prod. swaggggyb)" }
+        ];
+
+        let currentTrackIndex = 0;
+        let isTrackFading = false;
+        let targetMediaVolume = 0.7;
+
         // --- web audio api processing engine ---
         let audioContext;
         let analyser;
         let dataArray;
         let currentBounce = 1; // used for smooth linear interpolation calculations
-        const audio = new Audio('bouncin 4.mp3');
-        audio.loop = true;
+        const audio = new Audio();
+        audio.loop = false; // set false to support auto-advancing down playlists natively
+
+        // get UI handles for tracking play/pause operations
+        const playBtnNode = document.getElementById('btn-toggle-play');
+        const playImgIcon = document.getElementById('play-icon');
+        const pauseImgIcon = document.getElementById('pause-icon');
+        const trackSliderScrubber = document.getElementById('track-scrubber');
+        const txtTimeElapsed = document.getElementById('time-elapsed');
+        const txtTimeTotal = document.getElementById('time-total');
+        const labelSongTitle = document.getElementById('player-song-title');
+        const labelSongArtist = document.getElementById('player-song-artist');
+
+        // updates player textual rows with corresponding object parameters smoothly
+        function deployTrackMeta(index) {
+            const data = trackPlaylist[index];
+            labelSongTitle.textContent = data.title;
+            labelSongArtist.textContent = data.meta;
+            trackSliderScrubber.value = 0;
+            txtTimeElapsed.textContent = "0:00";
+            txtTimeTotal.textContent = "0:00";
+        }
+        // pre-render first index parameters statically right out of the gate
+        deployTrackMeta(currentTrackIndex);
+
+        // standard function formatting float values to standard digital mm:ss strings
+        function stringifyTrackTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        // track timeline tracker events update listeners
+        audio.addEventListener('timeupdate', () => {
+            if (!isNaN(audio.duration) && !isTrackFading) {
+                trackSliderScrubber.max = audio.duration;
+                trackSliderScrubber.value = audio.currentTime;
+                txtTimeElapsed.textContent = stringifyTrackTime(audio.currentTime);
+            }
+        });
+
+        audio.addEventListener('loadedmetadata', () => {
+            trackSliderScrubber.max = audio.duration;
+            txtTimeTotal.textContent = stringifyTrackTime(audio.duration);
+        });
+
+        // automatically shift indexes forward as song data naturally hits its EOF target boundary
+        audio.addEventListener('ended', () => {
+            executeTrackSkip(1);
+        });
+
+        // user scrubbing input handlers
+        trackSliderScrubber.addEventListener('input', () => {
+            audio.currentTime = trackSliderScrubber.value;
+            txtTimeElapsed.textContent = stringifyTrackTime(audio.currentTime);
+        });
+
+        // clean custom step volume programmatic fader routine wrapper logic
+        function executeVolumeTransition(targetVol, durationMs, postCallback) {
+            if (durationMs <= 0) {
+                audio.volume = targetVol;
+                if (postCallback) postCallback();
+                return;
+            }
+            const stepInterval = 20; 
+            const stepsCount = durationMs / stepInterval;
+            const deltaVolume = (targetVol - audio.volume) / stepsCount;
+
+            let loopCount = 0;
+            const timer = setInterval(() => {
+                let nextVol = audio.volume + deltaVolume;
+                if (nextVol < 0) nextVol = 0;
+                if (nextVol > 1) nextVol = 1;
+                audio.volume = nextVol;
+                loopCount++;
+
+                if (loopCount >= stepsCount) {
+                    clearInterval(timer);
+                    audio.volume = targetVol;
+                    if (postCallback) postCallback();
+                }
+            }, stepInterval);
+        }
+
+        // master core global runtime operations logic handling play pause states with crossfades
+        function triggerPlaybackToggle() {
+            if (audio.paused) {
+                playImgIcon.style.display = 'none';
+                pauseImgIcon.style.display = 'block';
+                audio.volume = 0;
+                audio.play();
+                executeVolumeTransition(targetMediaVolume, 400);
+            } else {
+                executeVolumeTransition(0, 400, () => {
+                    audio.pause();
+                    playImgIcon.style.display = 'block';
+                    pauseImgIcon.style.display = 'none';
+                });
+            }
+        }
+
+        // playlist index navigation driver operations
+        function executeTrackSkip(directionModifier) {
+            currentTrackIndex += directionModifier;
+            if (currentTrackIndex >= trackPlaylist.length) currentTrackIndex = 0;
+            if (currentTrackIndex < 0) currentTrackIndex = trackPlaylist.length - 1;
+
+            deployTrackMeta(currentTrackIndex);
+
+            if (!audio.paused) {
+                executeVolumeTransition(0, 300, () => {
+                    audio.src = trackPlaylist[currentTrackIndex].file;
+                    audio.play();
+                    executeVolumeTransition(targetMediaVolume, 400);
+                });
+            } else {
+                audio.src = trackPlaylist[currentTrackIndex].file;
+            }
+        }
+
+        // bind event control loops down to player deck elements
+        playBtnNode.addEventListener('click', triggerPlaybackToggle);
+        document.getElementById('btn-prev-track').addEventListener('click', () => executeTrackSkip(-1));
+        document.getElementById('btn-next-track').addEventListener('click', () => executeTrackSkip(1));
+
 
         // handles clicking to initialize the sound engine safely and fires animation sequence
         document.getElementById('interaction-overlay').addEventListener('click', function() {
@@ -625,6 +932,8 @@
             analyser = audioContext.createAnalyser();
             analyser.fftSize = 64; 
 
+            // set media element destination references up on our central audio node engine
+            audio.src = trackPlaylist[currentTrackIndex].file;
             const source = audioContext.createMediaElementSource(audio);
             source.connect(analyser);
             analyser.connect(audioContext.destination);
@@ -632,6 +941,8 @@
             dataArray = new Uint8Array(analyser.frequencyBinCount);
 
             // trigger playback with code-controlled 3 second volume fade-in
+            playImgIcon.style.display = 'none';
+            pauseImgIcon.style.display = 'block';
             audio.volume = 0;
             audio.play();
 
@@ -639,10 +950,10 @@
             function fadeInVolume(now) {
                 let elapsed = (now - startTime) / 1000;
                 if (elapsed < 3) {
-                    audio.volume = (elapsed / 3) * 0.7;
+                    audio.volume = (elapsed / 3) * targetMediaVolume;
                     requestAnimationFrame(fadeInVolume);
                 } else {
-                    audio.volume = 0.7; 
+                    audio.volume = targetMediaVolume; 
                 }
             }
             requestAnimationFrame(fadeInVolume);
@@ -662,6 +973,7 @@
 
             // launch animation rendering loops
             visualizerLoop();
+            renderWaveformLine();
             
             // launch custom character-by-character typewriter execution
             setTimeout(runTypewriter, 400);
@@ -709,6 +1021,59 @@
 
             // push the calculated slow-release scale factor down into style document arrays
             document.documentElement.style.setProperty('--audio-bounce', currentBounce);
+        }
+
+
+        // --- custom wavy line waveform audio visualizer logic ---
+        const waveCanvas = document.getElementById('player-wave-canvas');
+        const waveCtx = waveCanvas.getContext('2d');
+        let wavePhase = 0;
+
+        function renderWaveformLine() {
+            requestAnimationFrame(renderWaveformLine);
+            
+            const w = waveCanvas.width = waveCanvas.offsetWidth;
+            const h = waveCanvas.height = waveCanvas.offsetHeight;
+            waveCtx.clearRect(0, 0, w, h);
+
+            // compute raw energy levels from spectrum frequency values arrays
+            let rawEnergy = 0;
+            if (analyser && !audio.paused) {
+                analyser.getByteFrequencyData(dataArray);
+                let subTotal = 0;
+                for(let i=0; i<dataArray.length; i++) { subTotal += dataArray[i]; }
+                rawEnergy = subTotal / dataArray.length;
+            }
+
+            // scale factor calculation profiles
+            let intensityFactor = (rawEnergy / 255);
+            if(audio.paused) intensityFactor = 0; // flattens string layouts completely when paused
+
+            waveCtx.beginPath();
+            waveCtx.lineWidth = 2;
+            waveCtx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+            waveCtx.shadowBlur = 6;
+            waveCtx.shadowColor = 'rgba(255, 255, 255, 0.7)';
+
+            // draw single continuous sinewave curve line vectors across the widget space bounds
+            for (let x = 0; x < w; x++) {
+                // build math models combining standing frequency scales plus custom speed constants
+                let baselineCycles = (x / w) * Math.PI * 2.5;
+                let activeOffset = Math.sin(baselineCycles + wavePhase) * (h * 0.35 * intensityFactor);
+                let yPosition = (h / 2) + activeOffset;
+
+                if (x === 0) {
+                    waveCtx.moveTo(x, yPosition);
+                } else {
+                    waveCtx.lineTo(x, yPosition);
+                }
+            }
+
+            waveCtx.stroke();
+            waveCtx.shadowBlur = 0; // clear style pass definitions right after rendering updates
+
+            // advance step speeds continuously based on the strength of active song bass parameters
+            wavePhase += 0.04 + (intensityFactor * 0.08);
         }
 
 
@@ -848,7 +1213,7 @@
 
 
         // --- 3d cursor tracking card rotation ---
-        const tiltElements = document.querySelectorAll('.tilt-card, .social-btn');
+        const tiltElements = document.querySelectorAll('.tilt-card, .social-btn, .music-player-panel');
 
         tiltElements.forEach(element => {
             element.addEventListener('mousemove', (e) => {
