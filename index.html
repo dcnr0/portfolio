@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ｚｅｐｔｉ_Ｗ</title>
+    <title>ｚｅｐｔｉ_ｚ</title>
+    <!-- favicon link -->
     <link rel="icon" href="iksi.png" type="image/png">
+    <!-- import poppins font from google fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
@@ -37,7 +39,7 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center; /* perfectly centers content vertically in viewport */
+            align-items: center; 
             position: relative;
         }
 
@@ -84,22 +86,24 @@
             will-change: transform;
         }
 
-        /* header layout adjusting for typewriter effect - animation class added via js post click */
+        /* Fixed structural centering - Starts completely dead center before moving up smoothly */
         header {
             position: absolute;
             top: 50%;
-            transform: translateY(-50%);
+            left: 50%;
+            transform: translate(-50%, -50%);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 24px; /* space between pfp and text */
             z-index: 10;
             width: 100%;
+            max-width: 900px;
             opacity: 0;
         }
 
         header.animate-init {
-            animation: moveUp 1.2s cubic-bezier(0.85, 0, 0.15, 1) forwards;
+            animation: moveUpCenter 1.2s cubic-bezier(0.85, 0, 0.15, 1) forwards;
             animation-delay: 2.5s; /* scaled cleanly to align perfectly after handwritten typing loops finish */
         }
 
@@ -146,9 +150,9 @@
             font-size: 3.5rem;
             font-weight: 700;
             letter-spacing: -1px;
-            line-height: 1.1; /* slightly increased line height to make row layout taller */
+            line-height: 1.1; 
             white-space: nowrap;
-            overflow: visible; /* changed from hidden to allow text shadows to bleed outward naturally */
+            overflow: visible; 
             display: inline-block;
             border-right: 3px solid #ffffff; /* typing cursor indicator */
             text-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
@@ -336,16 +340,34 @@
             animation-delay: 3.2s, 2.5s;
             display: flex;
             flex-direction: column;
-            align-items: center; /* centers the inside content card items */
+            align-items: center; 
         }
 
-        /* Responsive Multi-column Grid Layout for Profile Info Tabs */
+        /* Responsive Information Layout Rows */
         .info-grid {
-            display: grid;
-            grid-template-columns: 2fr 1.2fr 1fr;
+            display: flex;
+            flex-direction: column;
             gap: 16px;
             width: 100%;
             margin-bottom: 24px;
+        }
+
+        .info-row-top {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+        }
+
+        .info-row-bottom {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .info-row-three {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
         }
 
         /* 3d tiltable card parent element featuring clean UI glow elements */
@@ -359,7 +381,7 @@
             padding: 24px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             box-shadow: var(--ui-glow);
         }
 
@@ -376,24 +398,7 @@
             text-align: left;
         }
 
-        /* interests tags layout */
-        .interests-grid {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .interest-tag {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            padding: 4px 12px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        /* Languages Tab Styling */
-        .languages-card h3, .birthday-card h3 {
+        .card-title-header {
             font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 1.5px;
@@ -402,6 +407,29 @@
             font-weight: 600;
         }
 
+        /* interests & genres tags layout */
+        .interests-tags-flex {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .interest-tag {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .interest-tag:hover {
+            border-color: #555;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Languages Tab Styling */
         .lang-item {
             display: flex;
             align-items: center;
@@ -434,22 +462,43 @@
             color: var(--text-muted);
         }
 
-        /* Birthday Tab Styling */
-        .birthday-display {
+        /* Birthday & Contact Tab Styling */
+        .generic-display {
             display: flex;
             flex-direction: column;
             gap: 4px;
         }
 
-        .birth-date {
+        .display-main {
             font-size: 1.2rem;
             font-weight: 700;
             color: var(--text-main);
         }
 
-        .birth-year {
+        .display-sub {
             font-size: 0.9rem;
             color: var(--text-muted);
+        }
+
+        .email-link-action {
+            display: inline-flex;
+            align-items: center;
+            align-self: flex-start;
+            margin-top: 8px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            background: #242424;
+            border: 1px solid var(--border-color);
+            padding: 6px 14px;
+            border-radius: 6px;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .email-link-action:hover {
+            background: #323232;
+            border-color: #555;
         }
 
         /* social grid & button setup */
@@ -502,7 +551,7 @@
             border-radius: 6px;
             border: 1px solid var(--border-color);
             backdrop-filter: blur(8px);
-            pointer-events: none; /* purely informative graphic */
+            pointer-events: none; 
             text-transform: uppercase;
             opacity: 0;
             transition: opacity 1.5s ease;
@@ -556,14 +605,17 @@
             }
         }
 
-        @keyframes moveUp {
+        /* Anchors transformation coordinates directly from the center viewport positions safely */
+        @keyframes moveUpCenter {
             0% {
                 top: 50%;
-                transform: translateY(-50%);
+                left: 50%;
+                transform: translate(-50%, -50%);
             }
             100% {
-                top: 10%; /* adjusted to push up cleanly above centrally balanced layout */
-                transform: translateY(0%);
+                top: 10%; 
+                left: 50%;
+                transform: translate(-50%, 0%);
             }
         }
 
@@ -589,9 +641,8 @@
 
         /* tablet & mobile alignment adjustments */
         @media (max-width: 768px) {
-            .info-grid {
+            .info-row-top, .info-row-bottom, .info-row-three {
                 grid-template-columns: 1fr;
-                gap: 16px;
             }
             header {
                 padding: 0 20px;
@@ -619,12 +670,16 @@
 </head>
 <body>
 
+    <!-- modern browsers block music autoplay until the user clicks somewhere on the screen -->
     <div id="interaction-overlay">click anywhere to open portfolio</div>
 
+    <!-- background canvas for animated snow particles -->
     <canvas id="snow-canvas"></canvas>
 
+    <!-- advanced glowing canvas mouse trail element layout -->
     <canvas id="trail-canvas"></canvas>
 
+    <!-- flat running clock locked outside adaptive scaling bounds -->
     <div class="local-time-widget" id="time-widget-box">
         local time: <span id="time-clock">00:00:00 am</span>
     </div>
@@ -632,9 +687,11 @@
     <div class="container">
         
         <header id="main-header">
+            <!-- profile pic tag featuring your dynamic pinterest gif url asset -->
             <img class="profile-pic" src="https://i.pinimg.com/originals/65/e3/43/65e34380e1792d056eb704847c6806dd.gif" alt="zepti_w pfp">
             <div class="header-text">
                 <div class="typewriter-wrapper">
+                    <!-- typewriter engine target container element -->
                     <h1 id="typewriter-title"></h1>
                 </div>
                 <div class="tagline-container">
@@ -647,6 +704,7 @@
         <div class="content" id="main-content">
             <main style="width: 100%;">
 
+                <!-- custom media hub card deck item element -->
                 <section class="music-player-panel">
                     <div class="player-track-meta">
                         <div class="track-details-core">
@@ -678,52 +736,108 @@
                     </div>
                 </section>
                 
+                <!-- Side-by-Side Information Block Section Grid -->
                 <div class="info-grid">
                     
-                    <section class="bio-card tilt-card">
-                        <p>hey, i'm <strong>zepti_w</strong>. i am a 13-year-old creator who loves coding, building cool things, and making audios. when i'm not coding, i'm usually hanging out on roblox, bypassing sum audios, or touching grass 😂 </p>
-                        <div class="interests-grid">
-                            <div class="interest-tag">coding</div>
-                            <div class="interest-tag">roblox</div>
-                            <div class="interest-tag">gaming</div>
-                        </div>
-                    </section>
+                    <!-- Row 1: Bio and Languages -->
+                    <div class="info-row-top">
+                        <!-- Tab 1: About Biography Card -->
+                        <section class="bio-card tilt-card">
+                            <p>hey, i'm <strong>zepti_w</strong>. i am a 13-year-old creator who loves coding, building cool things, and making audios. when i'm not coding, i'm usually hanging out on roblox, bypassing sum audios, or touching grass 😂 </p>
+                        </section>
 
-                    <section class="languages-card tilt-card">
-                        <h3>languages</h3>
-                        <div class="lang-item">
-                            <div class="flag-img">🇺🇸</div>
-                            <div class="lang-info">
-                                <span class="lang-name">english</span>
-                                <span class="lang-status">fluent</span>
+                        <!-- Tab 2: Languages Tab -->
+                        <section class="languages-card tilt-card">
+                            <h3 class="card-title-header">languages</h3>
+                            <div class="lang-item">
+                                <div class="flag-img">🇺🇸</div>
+                                <div class="lang-info">
+                                    <span class="lang-name">english</span>
+                                    <span class="lang-status">fluent</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="lang-item">
-                            <div class="flag-img">🇪🇸</div>
-                            <div class="lang-info">
-                                <span class="lang-name">spanish</span>
-                                <span class="lang-status">native</span>
+                            <div class="lang-item">
+                                <div class="flag-img">🇪🇸</div>
+                                <div class="lang-info">
+                                    <span class="lang-name">spanish</span>
+                                    <span class="lang-status">native</span>
+                                </div>
                             </div>
-                        </div>
-                    </section>
+                        </section>
+                    </div>
 
-                    <section class="birthday-card tilt-card">
-                        <h3>birthday</h3>
-                        <div class="birthday-display">
-                            <span class="birth-date">march 19</span>
-                            <span class="birth-year">2013</span>
-                        </div>
-                    </section>
+                    <!-- Row 2: Expanded Interests and Genres Sections -->
+                    <div class="info-row-bottom">
+                        <!-- Tab 3: Expanded Interests Grid Layout Portfolio Box -->
+                        <section class="tilt-card">
+                            <h3 class="card-title-header">interests</h3>
+                            <div class="interests-tags-flex">
+                                <div class="interest-tag">roblox</div>
+                                <div class="interest-tag">geometry dash</div>
+                                <div class="interest-tag">python</div>
+                                <div class="interest-tag">tiktok</div>
+                                <div class="interest-tag">youtube</div>
+                                <div class="interest-tag">instagram</div>
+                                <div class="interest-tag">minecraft</div>
+                                <div class="interest-tag">cars</div>
+                                <div class="interest-tag">audiomaking</div>
+                            </div>
+                        </section>
+
+                        <!-- Tab 4: Music Genres Matrix Deck -->
+                        <section class="tilt-card">
+                            <h3 class="card-title-header">genres</h3>
+                            <div class="interests-tags-flex">
+                                <div class="interest-tag">hyperpop</div>
+                                <div class="interest-tag">doomshop</div>
+                                <div class="interest-tag">memphis phonk</div>
+                                <div class="interest-tag">brazil funk</div>
+                                <div class="interest-tag">house</div>
+                                <div class="interest-tag">hardstyle</div>
+                                <div class="interest-tag">uptempo</div>
+                                <div class="interest-tag">deutscher krach</div>
+                                <div class="interest-tag">trap</div>
+                                <div class="interest-tag">cloud rap</div>
+                                <div class="interest-tag">rage rap</div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- Row 3: Birthday & Mail Contact Grid Row Split -->
+                    <div class="info-row-three">
+                        <!-- Tab 5: Birthday Block Alignment Element -->
+                        <section class="birthday-card tilt-card">
+                            <h3 class="card-title-header">birthday</h3>
+                            <div class="generic-display">
+                                <span class="display-main">march 19</span>
+                                <span class="display-sub">2013</span>
+                            </div>
+                        </section>
+
+                        <!-- Tab 6: Pre-addressed Mail Box Connector Tab -->
+                        <section class="contact-card tilt-card">
+                            <h3 class="card-title-header">contact</h3>
+                            <div class="generic-display">
+                                <span class="display-main">get in touch</span>
+                                <span class="display-sub">whyiseliashere@gmail.com</span>
+                                <a href="mailto:whyiseliashere@gmail.com" class="email-link-action">send message</a>
+                            </div>
+                        </section>
+                    </div>
 
                 </div>
 
                 <section>
+                    <!-- grid of interactive 3d buttons with social channels -->
                     <div class="links-container">
                         <a href="https://guns.lol/zepti_W" target="_blank" class="social-btn"><span>guns.lol</span></a>
                         <a href="https://www.roblox.com/users/5549508446/profile" target="_blank" class="social-btn"><span>roblox</span></a>
+                        <a href="https://github.com/dcnr0" target="_blank" class="social-btn"><span>github</span></a>
                         <a href="https://soundcloud.com/zepti_w" target="_blank" class="social-btn"><span>soundcloud</span></a>
                         <a href="https://www.tiktok.com/@plugg_752" target="_blank" class="social-btn"><span>tiktok</span></a>
                         <a href="https://www.youtube.com/@zzzepti" target="_blank" class="social-btn"><span>youtube</span></a>
+                        <a href="https://www.instagram.com/e85ns/" target="_blank" class="social-btn"><span>instagram</span></a>
+                        <a href="https://www.pinterest.com/whyiseliashere/" target="_blank" class="social-btn"><span>pinterest</span></a>
                         <a href="https://discord.com/users/1317324380291862659" target="_blank" class="social-btn"><span>discord</span></a>
                     </div>
                 </section>
@@ -739,11 +853,11 @@
     <script>
         // --- quotes cycle tracking engine ---
         const quotesList = [
-            "im newgen", "wassup", "dios es grande", "hhhhhhhhhh", 
+            "im newgen", "wassup", "dios es grande", "dapumpkingod NOT oldgen", 
             "tung tung tung sahur", "leave", "erika", "i dont associate with nazis", 
             "blue bands blue bands blue bands blue baaaannndss", "agramane", 
             "gabetsu was here", "uwu", "owo", "insert quote here", 
-            "jeremiah 29:11", "crazy? i was crazy once", "fuck ooze"
+            "jeremiah 29:11", "crazy? i was crazy once"
         ];
         
         const quoteBox = document.getElementById('quote-box');
